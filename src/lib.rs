@@ -1,11 +1,14 @@
 #[macro_use]
 extern crate nom;
+use nom::error::ErrorKind;
+use nom::error::ParseError;
+use nom::Err::Error;
 use nom::{
     branch::alt, bytes::complete::take_while, character::complete::char, combinator::map,
     combinator::map_res, sequence::delimited, sequence::pair, IResult,
 };
 
-use anyhow::{anyhow, Result};
+use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -19,6 +22,15 @@ impl From<Number> for f64 {
         match item {
             Number::Fractional(n, d) => n as f64 / d as f64,
             Number::Rounded(v) => v,
+        }
+    }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Number::Fractional(n, d) => write!(f, "{}/{}", n, d),
+            Number::Rounded(num) => write!(f, "{}", num),
         }
     }
 }
@@ -157,18 +169,21 @@ pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((parse_add, parse_sub, parse_term))(input)
 }
 
-pub fn parse(input: &str) -> Option<Expr> {
-    //let (rem, expr) = parse_expr(input).map_err(|_| {
-    //    return Err(anyhow!("Nah."));
-    //})?;
-    let i = input.replace(" ", "");
-    let (_, expr) = parse_expr(&i).ok()?;
-    Some(expr)
-}
-
-// pub fn parse2(input: &str) -> Result<Expr, _> {
-//      parse_expr(input).ok_or_else(|| Err("boom"))
+// pub fn parse(input: &str) -> Result<Expr, Box<dyn std::error::Error>> {
+//     //let (rem, expr) = parse_expr(input).map_err(|_| {
+//     //    return Err(anyhow!("Nah."));
+//     //})?;
+//     //let i = input.replace(" ", "");
+//     let (_, expr) = parse_expr(&input)
+//     Ok(expr)
 // }
+
+pub fn parse(input: &str) -> std::result::Result<Expr, String> {
+    let i = input.replace(" ", "");
+    parse_expr(&i)
+        .map(|(_, exp)| exp)
+        .map_err(|_| "Oops".to_string())
+}
 
 pub fn walk(ast: &Expr) -> Number {
     match ast {
