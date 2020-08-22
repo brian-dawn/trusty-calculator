@@ -11,10 +11,26 @@ use nom::{
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
+pub mod utils;
+
+use utils::gcd;
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Number {
     Fractional(i64, i64),
     Rounded(f64),
+}
+
+impl Number {
+    fn reduce(self) -> Self {
+        match self {
+            Number::Fractional(n, d) => {
+                let gcd = gcd(n, d);
+                Number::Fractional(n / gcd, d / gcd)
+            }
+            Number::Rounded(_) => self,
+        }
+    }
 }
 
 impl From<Number> for f64 {
@@ -28,7 +44,8 @@ impl From<Number> for f64 {
 
 impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
+        let display = self.reduce();
+        match display {
             Number::Fractional(n, d) => write!(f, "{}/{}", n, d),
             Number::Rounded(num) => write!(f, "{}", num),
         }
@@ -63,9 +80,6 @@ impl Sub for Number {
         self + (-rhs)
     }
 }
-
-// 人工の人口です
-// the bank on the bank
 
 impl Mul for Number {
     type Output = Number;
