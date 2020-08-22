@@ -46,6 +46,7 @@ impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display = self.reduce();
         match display {
+            Number::Fractional(n, 1) => write!(f, "{}", n),
             Number::Fractional(n, d) => write!(f, "{}/{}", n, d),
             Number::Rounded(num) => write!(f, "{}", num),
         }
@@ -183,20 +184,17 @@ pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((parse_add, parse_sub, parse_term))(input)
 }
 
-// pub fn parse(input: &str) -> Result<Expr, Box<dyn std::error::Error>> {
-//     //let (rem, expr) = parse_expr(input).map_err(|_| {
-//     //    return Err(anyhow!("Nah."));
-//     //})?;
-//     //let i = input.replace(" ", "");
-//     let (_, expr) = parse_expr(&input)
-//     Ok(expr)
-// }
-
 pub fn parse(input: &str) -> std::result::Result<Expr, String> {
-    let i = input.replace(" ", "");
+    let i = input.trim().replace(" ", "");
     parse_expr(&i)
-        .map(|(_, exp)| exp)
         .map_err(|_| "Oops".to_string())
+        .and_then(|(remain, exp)| {
+            if !remain.is_empty() {
+                Err(String::from("Failed to parse"))
+            } else {
+                Ok(exp)
+            }
+        })
 }
 
 pub fn walk(ast: &Expr) -> Number {
