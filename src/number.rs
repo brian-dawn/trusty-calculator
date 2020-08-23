@@ -1,8 +1,3 @@
-
-
-
-
-
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -15,7 +10,16 @@ pub enum Number {
 }
 
 impl Number {
-    fn reduce(self) -> Self {
+    /// Create a fractional number with just a numerator component.
+    /// Used for whole numbers, the denominator is just set to `1`.
+    pub fn integer(v: i64) -> Number {
+        Number::Fractional(v, 1)
+    }
+
+    /// Attempt to simplify a number.
+    /// If it's a fraction we will reduce it.
+    /// If it's a rounded number we will do nothing.
+    pub fn reduce(self) -> Self {
         match self {
             Number::Fractional(n, d) => {
                 let gcd = gcd(n, d);
