@@ -39,7 +39,7 @@ mod tests {
 
         assert_eq!(parse_number("1"), Ok(("", Number::Fractional(1, 1))));
         assert!(parse_number("-1").is_err());
-        assert_eq!(parse_number("1.2"), Ok(("", Number::Rounded(1.2))));
+        assert_eq!(parse_number("1.2"), Ok(("", Number::Fractional(6, 5)))); // <- so fancy
 
         // TODO
         //assert_eq!(parse_float("∞"), Ok(("", f64::INFINITY)));
