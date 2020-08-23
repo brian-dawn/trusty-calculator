@@ -1,7 +1,8 @@
 use anyhow::Result;
 use std::io;
 use std::io::Write;
-use trusty_calculator::{parse, walk};
+use trusty_calculator::{parser::parse, walk};
+
 fn main() -> Result<()> {
     let stdin = io::stdin();
     loop {
