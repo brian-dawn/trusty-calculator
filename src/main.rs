@@ -1,28 +1,53 @@
 use anyhow::Result;
-use std::io;
-use std::io::Write;
+use rustyline::error::ReadlineError;
+use rustyline::Editor;
 use trusty_calculator::{parser::parse, walk};
-
 fn main() -> Result<()> {
-    let stdin = io::stdin();
-    let mut stdout = io::stdout();
+    let home_dir = dirs::home_dir();
+    let history_path = home_dir.map(|mut path| {
+        path.push(".trusty-calculator-history.txt");
+        path
+    });
+
+    let mut rl = Editor::<()>::new();
+    if let Some(ref path) = history_path {
+        if rl.load_history(&path).is_err() {
+            // Do nothing, no history exists yet.
+        }
+    }
 
     loop {
-        let mut input = String::new();
+        let readline = rl.readline("λ ");
+        match readline {
+            Ok(input) => {
+                if input.trim() == "quit" || input.trim() == "q" {
+                    break;
+                }
 
-        print!(">");
-        stdout.flush().unwrap();
+                match parse(&input) {
+                    Ok(exp) => {
+                        rl.add_history_entry(input.as_str());
+                        println!("{}", walk(&exp));
+                    }
+                    Err(e) => println!("{}", e),
+                }
+            }
 
-        stdin.read_line(&mut input)?;
-
-        if input.trim() == "quit" {
-            break;
+            Err(ReadlineError::Eof) => {
+                break;
+            }
+            Err(ReadlineError::Interrupted) => {
+                break;
+            }
+            Err(err) => {
+                println!("{}", err);
+                break;
+            }
         }
+    }
 
-        match parse(&input) {
-            Ok(exp) => println!("{}", walk(&exp)),
-            Err(e) => println!("{}", e),
-        }
+    if let Some(ref path) = history_path {
+        rl.save_history(&path).unwrap();
     }
 
     Ok(())
