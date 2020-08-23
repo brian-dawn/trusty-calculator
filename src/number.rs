@@ -32,9 +32,11 @@ impl From<i64> for Number {
 
 impl From<f64> for Number {
     fn from(v: f64) -> Self {
-        let r = decimal_to_rational(v);
-        Number::Fractional(r[0], r[1])
-        //Number::Rounded(v)
+        if let Some((n, d)) = decimal_to_rational(v) {
+            Number::Fractional(n, d)
+        } else {
+            Number::Rounded(v)
+        }
     }
 }
 
