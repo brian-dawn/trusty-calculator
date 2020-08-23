@@ -11,12 +11,13 @@ pub fn gcd(x: i64, y: i64) -> i64 {
 
 /// Attempt to convert a decimal to a rational number.
 /// https://rosettacode.org/wiki/Convert_decimal_number_to_rational#Rust
+#[allow(clippy::many_single_char_names)]
 pub fn decimal_to_rational(mut n: f64) -> [i64; 2] {
     //Based on Farey sequences
     assert!(n.is_finite());
     let flag_neg = n < 0.0;
     if flag_neg {
-        n = n * (-1.0)
+        n *= -1.0
     }
     if n < std::f64::MIN_POSITIVE {
         return [0, 1];
@@ -35,11 +36,11 @@ pub fn decimal_to_rational(mut n: f64) -> [i64; 2] {
             break;
         }
         if n > aux2 {
-            a = a + c;
-            b = b + d;
+            a += c;
+            b += d;
         } else {
-            c = a + c;
-            d = b + d;
+            c += a;
+            d += b;
         }
     }
     // Make sure that the fraction is irreducible

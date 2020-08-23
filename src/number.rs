@@ -33,7 +33,7 @@ impl From<i64> for Number {
 impl From<f64> for Number {
     fn from(v: f64) -> Self {
         let r = decimal_to_rational(v);
-        return Number::Fractional(r[0], r[1]);
+        Number::Fractional(r[0], r[1])
         //Number::Rounded(v)
     }
 }
@@ -68,6 +68,7 @@ impl Neg for Number {
     }
 }
 
+#[allow(clippy::suspicious_arithmetic_impl)] // bodil said it was ok
 impl Add for Number {
     type Output = Number;
     fn add(self, rhs: Self) -> Self::Output {
@@ -100,6 +101,7 @@ impl Mul for Number {
     }
 }
 
+#[allow(clippy::suspicious_arithmetic_impl)] // bodil said it was ok
 impl Div for Number {
     type Output = Number;
     fn div(self, rhs: Self) -> Self::Output {
