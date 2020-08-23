@@ -6,9 +6,9 @@ mod tests {
     use super::trusty_calculator::parser::*;
     use super::trusty_calculator::*;
 
-    use anyhow::Result;
+    
     use assert_cmd::prelude::*;
-    use std::process::Command;
+    
 
     #[test]
     fn test_walk() {
