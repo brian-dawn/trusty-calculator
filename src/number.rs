@@ -1,8 +1,3 @@
-
-
-
-
-
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -15,7 +10,10 @@ pub enum Number {
 }
 
 impl Number {
-    fn reduce(self) -> Self {
+    /// Attempt to simplify a number.
+    /// If it's a fraction we will reduce it.
+    /// If it's a rounded number we will do nothing.
+    pub fn reduce(self) -> Self {
         match self {
             Number::Fractional(n, d) => {
                 let gcd = gcd(n, d);
@@ -23,6 +21,18 @@ impl Number {
             }
             Number::Rounded(_) => self,
         }
+    }
+}
+
+impl From<i64> for Number {
+    fn from(v: i64) -> Self {
+        Number::Fractional(v, 1)
+    }
+}
+
+impl From<f64> for Number {
+    fn from(v: f64) -> Self {
+        Number::Rounded(v)
     }
 }
 
