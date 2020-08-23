@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::utils::gcd;
+use crate::utils::{decimal_to_rational,gcd};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Number {
@@ -32,7 +32,9 @@ impl From<i64> for Number {
 
 impl From<f64> for Number {
     fn from(v: f64) -> Self {
-        Number::Rounded(v)
+        let r = decimal_to_rational(v);
+        return Number::Fractional(r[0], r[1])
+        //Number::Rounded(v)
     }
 }
 
