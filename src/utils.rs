@@ -11,6 +11,8 @@ pub fn gcd(mut x: i64, mut y: i64) -> i64 {
 /// https://rosettacode.org/wiki/Convert_decimal_number_to_rational#Rust
 #[allow(clippy::many_single_char_names)]
 pub fn decimal_to_rational(mut n: f64) -> Option<(i64, i64)> {
+    const LIMIT: i64 = 100_000_000;
+
     if n.is_nan() || n.is_infinite() {
         return None;
     }
@@ -43,6 +45,10 @@ pub fn decimal_to_rational(mut n: f64) -> Option<(i64, i64)> {
         } else {
             c += a;
             d += b;
+        }
+
+        if b > LIMIT || d > LIMIT {
+            return None;
         }
     }
     // Make sure that the fraction is irreducible
