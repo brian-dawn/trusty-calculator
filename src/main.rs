@@ -5,21 +5,23 @@ use trusty_calculator::{parser::parse, walk};
 
 fn main() -> Result<()> {
     let stdin = io::stdin();
+    let mut stdout = io::stdout();
+
     loop {
-        let mut buf = String::new();
+        let mut input = String::new();
+
         print!(">");
-        io::stdout().flush().unwrap();
+        stdout.flush().unwrap();
 
-        stdin.read_line(&mut buf)?;
+        stdin.read_line(&mut input)?;
 
-        if buf.trim() == "quit" {
+        if input.trim() == "quit" {
             break;
         }
 
-        if let Ok(exp) = parse(&buf) {
-            println!("{}", walk(&exp))
-        } else {
-            println!("What?")
+        match parse(&input) {
+            Ok(exp) => println!("{}", walk(&exp)),
+            Err(e) => println!("{}", e),
         }
     }
 

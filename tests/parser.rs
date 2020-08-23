@@ -1,28 +1,29 @@
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
-    use assert_cmd::prelude::*;
-    use std::process::Command;
+    // use assert_cmd::prelude::*;
+    // use std::process::Command;
     use trusty_calculator::number::Number;
     use trusty_calculator::parser::*;
 
-    fn test_number_cmd() -> Result<()> {
-        let mut cmd = Command::cargo_bin("trusty-calculator")?;
+    // TODO
+    // fn test_number_cmd() -> Result<()> {
+    //     let mut cmd = Command::cargo_bin("trusty-calculator")?;
 
-        cmd.arg("3");
-        cmd.assert().success().stdout("3\n");
+    //     cmd.arg("3");
+    //     cmd.assert().success().stdout("3\n");
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    fn test_add_cmd() -> Result<()> {
-        let mut cmd = Command::cargo_bin("trusty-calculator")?;
+    // TODO
+    // fn test_add_cmd() -> Result<()> {
+    //     let mut cmd = Command::cargo_bin("trusty-calculator")?;
 
-        cmd.arg("1+1");
-        cmd.assert().success().stdout("2\n");
+    //     cmd.arg("1+1");
+    //     cmd.assert().success().stdout("2\n");
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     #[test]
     fn test_parse_number() {
@@ -38,17 +39,18 @@ mod tests {
 
         assert_eq!(parse_number("1"), Ok(("", Number::Fractional(1, 1))));
         assert!(parse_number("-1").is_err());
-        assert_eq!(parse_number("1.2"), Ok(("", Number::Rounded(1.2))));
+        assert_eq!(parse_number("1.2"), Ok(("", Number::Fractional(6, 5)))); // <- so fancy
 
         // TODO
         //assert_eq!(parse_float("∞"), Ok(("", f64::INFINITY)));
     }
 
-    fn test_negate_parse_expr() {
-        // assert_eq!(parse_expr("-2"), Ok(("", Number::Fractional(-2))));
-        // assert_eq!(parse_expr("-20"), Ok(("", Number::Fractional(-20))));
-        // assert_eq!(parse_expr("-1.2"), Ok(("", Number::Fractional(-1.2))));
-    }
+    // TODO
+    // fn test_negate_parse_expr() {
+    //     assert_eq!(parse_expr("-2"), Ok(("", Number::Fractional(-2))));
+    //     assert_eq!(parse_expr("-20"), Ok(("", Number::Fractional(-20))));
+    //     assert_eq!(parse_expr("-1.2"), Ok(("", Number::Fractional(-1.2))));
+    // }
 
     #[test]
     fn test_parse_add_and_sub() {
