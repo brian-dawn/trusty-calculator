@@ -6,10 +6,6 @@ mod tests {
     use super::trusty_calculator::parser::*;
     use super::trusty_calculator::*;
 
-    
-    use assert_cmd::prelude::*;
-    
-
     #[test]
     fn test_walk() {
         let n = walk(&parse("1+2").unwrap());

@@ -1,6 +1,6 @@
 use nom::{
     branch::alt, bytes::complete::take_while, character::complete::char, combinator::map,
-    combinator::map_res, sequence::delimited, sequence::pair, IResult,
+    combinator::map_res, sequence::delimited, sequence::pair, Err::Failure, IResult,
 };
 
 use crate::number::Number;
@@ -22,18 +22,14 @@ fn is_float_symbol(c: char) -> bool {
     c.is_ascii_digit() || c == '.' || c == 'i' || c == 'n' || c == 'f'
 }
 
-fn from_float(s: &str) -> std::result::Result<f64, std::num::ParseFloatError> {
-    if s.contains(".") || s == "inf" {
-        s.parse()
-    } else {
-        // TODO: figure out how to just return a real parse error here.
-        "何".parse()
-    }
-    // s.contains(".")
-    //     .then(s.parse())
-    //     .ok_or(std::num::ParseFloatError{
+fn from_float(s: &str) -> Result<f64, nom::Err<String>> {
+    let err = Failure(String::from("Invalid float"));
 
-    //     })
+    if s.contains('.') || s == "inf" {
+        s.parse().map_err(|_| err)
+    } else {
+        Err(err)
+    }
 }
 
 pub fn parse_integer(input: &str) -> IResult<&str, i64> {
@@ -93,15 +89,14 @@ pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((parse_add, parse_sub, parse_term))(input)
 }
 
-pub fn parse(input: &str) -> std::result::Result<Expr, String> {
+pub fn parse(input: &str) -> Result<Expr, String> {
     let i = input.trim().replace(" ", "");
     parse_expr(&i)
-        .map_err(|_| "Oops".to_string())
-        .and_then(|(remain, exp)| {
-            if !remain.is_empty() {
-                Err(String::from("Failed to parse"))
-            } else {
-                Ok(exp)
+        .map_err(|e| format!("{}", e))
+        .and_then(|(remaining, parsed)| {
+            if !remaining.is_empty() {
+                return Err(format!("Parsed: {:?}, Remaining, {}", parsed, remaining));
             }
+            Ok(parsed)
         })
 }

@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::utils::{decimal_to_rational,gcd};
+use crate::utils::{decimal_to_rational, gcd};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Number {
@@ -33,7 +33,7 @@ impl From<i64> for Number {
 impl From<f64> for Number {
     fn from(v: f64) -> Self {
         let r = decimal_to_rational(v);
-        return Number::Fractional(r[0], r[1])
+        return Number::Fractional(r[0], r[1]);
         //Number::Rounded(v)
     }
 }
@@ -58,6 +58,16 @@ impl fmt::Display for Number {
     }
 }
 
+impl Neg for Number {
+    type Output = Number;
+    fn neg(self) -> Self::Output {
+        match self {
+            Number::Fractional(n, d) => Number::Fractional(-n, d),
+            Number::Rounded(n) => Number::Rounded(-n),
+        }
+    }
+}
+
 impl Add for Number {
     type Output = Number;
     fn add(self, rhs: Self) -> Self::Output {
@@ -67,16 +77,6 @@ impl Add for Number {
             }
         }
         Number::Rounded(f64::from(self) + f64::from(rhs))
-    }
-}
-
-impl Neg for Number {
-    type Output = Number;
-    fn neg(self) -> Self::Output {
-        match self {
-            Number::Fractional(n, d) => Number::Fractional(-n, d),
-            Number::Rounded(n) => Number::Rounded(-n),
-        }
     }
 }
 
