@@ -1,16 +1,9 @@
-
-
-
 use nom::{
     branch::alt, bytes::complete::take_while, character::complete::char, combinator::map,
     combinator::map_res, sequence::delimited, sequence::pair, IResult,
 };
 
-
-
-
 use crate::number::Number;
-
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
@@ -53,8 +46,8 @@ pub fn parse_float(input: &str) -> IResult<&str, f64> {
 
 pub fn parse_number(input: &str) -> IResult<&str, Number> {
     alt((
-        map(parse_float, |n| Number::Rounded(n)),
-        map(parse_integer, |n| Number::Fractional(n, 1)),
+        map(parse_float, |n| n.into()),
+        map(parse_integer, |n| n.into()),
     ))(input)
 }
 
