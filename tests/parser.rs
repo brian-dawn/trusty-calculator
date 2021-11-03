@@ -26,6 +26,22 @@ mod tests {
     // }
 
     #[test]
+    fn test_fraction() {
+        let ex = "2/6 * 21";
+        let ast = parse(ex).unwrap();
+        assert_eq!(
+            Expr::Mul(
+                Box::new(Expr::Div(
+                    Box::new(Expr::Number(Number::Fractional(2, 1))),
+                    Box::new(Expr::Number(Number::Fractional(6, 1)),)
+                )),
+                Box::new(Expr::Number(Number::Fractional(21, 1)))
+            ),
+            ast
+        );
+    }
+
+    #[test]
     fn test_parse_number() {
         assert_eq!(parse_integer("1"), Ok(("", 1)));
         assert!(parse_float("1").is_err());
