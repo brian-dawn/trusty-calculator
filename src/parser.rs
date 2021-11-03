@@ -1,6 +1,14 @@
 use nom::{
-    branch::alt, bytes::complete::take_while, character::complete::char, combinator::map,
-    combinator::map_res, sequence::delimited, sequence::pair, Err::Failure, IResult,
+    branch::alt,
+    bytes::complete::{tag, take_while},
+    character::complete::char,
+    combinator::map,
+    combinator::map_res,
+    multi::many0,
+    sequence::pair,
+    sequence::{delimited, preceded},
+    Err::Failure,
+    IResult,
 };
 
 use crate::number::Number;
@@ -12,6 +20,14 @@ pub enum Expr {
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
     Number(Number),
+}
+
+#[derive(Debug)]
+pub enum Oper {
+    Add,
+    Sub,
+    Mul,
+    Div,
 }
 
 fn is_char_digit(c: char) -> bool {
@@ -57,36 +73,48 @@ fn parse_factor(input: &str) -> IResult<&str, Expr> {
     // literal or parens
 }
 
+fn fold_exprs(initial: Expr, remainder: Vec<(Oper, Expr)>) -> Expr {
+    remainder.into_iter().fold(initial, |acc, pair| {
+        let (oper, expr) = pair;
+        match oper {
+            Oper::Add => Expr::Add(Box::new(acc), Box::new(expr)),
+            Oper::Sub => Expr::Sub(Box::new(acc), Box::new(expr)),
+            Oper::Mul => Expr::Mul(Box::new(acc), Box::new(expr)),
+            Oper::Div => Expr::Div(Box::new(acc), Box::new(expr)),
+        }
+    })
+}
+
 fn parse_term(input: &str) -> IResult<&str, Expr> {
-    alt((parse_mul, parse_div, parse_factor))(input)
+    let (input, initial) = parse_factor(input)?;
+    let (input, remainder) = many0(alt((
+        |i| {
+            let (i, mul) = preceded(tag("*"), parse_factor)(i)?;
+            Ok((i, (Oper::Mul, mul)))
+        },
+        |i| {
+            let (i, div) = preceded(tag("/"), parse_factor)(i)?;
+            Ok((i, (Oper::Div, div)))
+        },
+    )))(input)?;
+
+    Ok((input, fold_exprs(initial, remainder)))
 }
 
-pub fn parse_mul(input: &str) -> IResult<&str, Expr> {
-    let sub = pair(char('*'), parse_term); // * followed by term
-    let (input, (lhs, (_, rhs))) = pair(parse_factor, sub)(input)?;
-    Ok((input, Expr::Mul(Box::new(lhs), Box::new(rhs))))
-}
+fn parse_expr(i: &str) -> IResult<&str, Expr> {
+    let (i, initial) = parse_term(i)?;
+    let (i, remainder) = many0(alt((
+        |i| {
+            let (i, add) = preceded(tag("+"), parse_term)(i)?;
+            Ok((i, (Oper::Add, add)))
+        },
+        |i| {
+            let (i, sub) = preceded(tag("-"), parse_term)(i)?;
+            Ok((i, (Oper::Sub, sub)))
+        },
+    )))(i)?;
 
-pub fn parse_div(input: &str) -> IResult<&str, Expr> {
-    let sub = pair(char('/'), parse_term);
-    let (input, (lhs, (_, rhs))) = pair(parse_factor, sub)(input)?;
-    Ok((input, Expr::Div(Box::new(lhs), Box::new(rhs))))
-}
-
-pub fn parse_sub(input: &str) -> IResult<&str, Expr> {
-    let sub = pair(char('-'), parse_expr);
-    let (input, (lhs, (_, rhs))) = pair(parse_term, sub)(input)?;
-    Ok((input, Expr::Sub(Box::new(lhs), Box::new(rhs))))
-}
-
-pub fn parse_add(input: &str) -> IResult<&str, Expr> {
-    let sub = pair(char('+'), parse_expr);
-    let (input, (lhs, (_, rhs))) = pair(parse_term, sub)(input)?;
-    Ok((input, Expr::Add(Box::new(lhs), Box::new(rhs))))
-}
-
-pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
-    alt((parse_add, parse_sub, parse_term))(input)
+    Ok((i, fold_exprs(initial, remainder)))
 }
 
 pub fn parse(input: &str) -> Result<Expr, String> {
