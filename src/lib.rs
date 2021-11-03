@@ -10,23 +10,23 @@ use parser::Expr;
 pub fn walk(ast: &Expr) -> Number {
     match ast {
         Expr::Add(lhs, rhs) => {
-            let lhs = walk(&lhs);
-            let rhs = walk(&rhs);
+            let lhs = walk(lhs);
+            let rhs = walk(rhs);
             lhs + rhs
         }
         Expr::Sub(lhs, rhs) => {
-            let lhs = walk(&lhs);
-            let rhs = walk(&rhs);
+            let lhs = walk(lhs);
+            let rhs = walk(rhs);
             lhs - rhs
         }
         Expr::Mul(lhs, rhs) => {
-            let lhs = walk(&lhs);
-            let rhs = walk(&rhs);
+            let lhs = walk(lhs);
+            let rhs = walk(rhs);
             lhs * rhs
         }
         Expr::Div(lhs, rhs) => {
-            let lhs = walk(&lhs);
-            let rhs = walk(&rhs);
+            let lhs = walk(lhs);
+            let rhs = walk(rhs);
             lhs / rhs
         }
         Expr::Number(num) => *num,
